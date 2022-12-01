@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: test
+    image: mariadb:10.5.8
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./src
+      - my-datavolume:/var/lib/mysql
+
+  website:
+    container_name: php74
+    build:
+      context: .
+      args:
+        - IS_READY
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_DBHOST=mysql
+      - MYSQL_DBPORT=3306
+      - MYSQL_DBUSER=admin
+      - MYSQL_DBPASS=password
+      - MYSQL_DBNAME=coronadb
+    ports:
+      - 8080:80
+      - 8083:443
+    depends_on:
+      - mysql
+volumes:
+  my-datavolume:
